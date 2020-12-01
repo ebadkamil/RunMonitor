@@ -106,10 +106,11 @@ class DashApp:
             size_info = self._data.size_info
             runs = list(size_info.keys())
             sizes = [get_size_format(size, unit=format)
-                     for size in list(size_info.values())]
+                     for size, _ in list(size_info.values())]
+            validated = ['green' if val else 'crimson' for _, val in list(size_info.values())]
             traces = [go.Bar(
                 x=runs, y=sizes,
-                marker_color='crimson',
+                marker=dict(color=validated),
                 )]
             figure = {
                 'data': traces,

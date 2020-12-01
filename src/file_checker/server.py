@@ -31,6 +31,8 @@ class RunServer(mp.Process):
     def run(self):
         while True:
             names = get_all_runs_size(self.proposal)
+            if not names:
+                continue
 
             timestamp = datetime.now().strftime("%H:%M:%S")
             data = RunInfo(timestamp)
@@ -38,7 +40,7 @@ class RunServer(mp.Process):
 
             try:
                 self.data_queue.put_nowait(data)
-                time.sleep(60)
+                time.sleep(10)
             except queue.Full:
                 continue
 

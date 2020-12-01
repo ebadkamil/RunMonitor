@@ -1,3 +1,3 @@
 config = dict(
-    proposal="/media/kamile/storage/dssc_data/",
+    proposal='2573',
     TIME_OUT=2.0)
