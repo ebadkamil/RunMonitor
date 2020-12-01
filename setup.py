@@ -24,10 +24,12 @@ setup(name="dashboard",
           ],
       },
       install_requires=[
+           'extra_data',
            'dash>=1.6.1',
            'dash-daq>=0.3.1',
            'psutil',
-           'numpy'
+           'numpy',
+
       ],
       extras_require={
         'test': [
