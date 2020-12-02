@@ -100,14 +100,14 @@ class DashApp:
                             [Input('timestamp', 'value'),
                              Input('format-type', 'value')])
         def update_histogram_figure(timestamp, format):
-            if self._data is None or self._data.timestamp != timestamp or self._data.size_info is None:
+            if self._data is None or self._data.timestamp != timestamp or self._data.info is None:
                 raise dash.exceptions.PreventUpdate
 
-            size_info = self._data.size_info
-            runs = list(size_info.keys())
+            info = self._data.info
+            runs = list(info.keys())
             sizes = [get_size_format(size, unit=format)
-                     for size, _ in list(size_info.values())]
-            validated = ['green' if val else 'crimson' for _, val in list(size_info.values())]
+                     for size, _ in list(info.values())]
+            validated = ['green' if val else 'crimson' for _, val in list(info.values())]
             traces = [go.Bar(
                 x=runs, y=sizes,
                 marker=dict(color=validated),
