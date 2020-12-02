@@ -9,37 +9,28 @@ import multiprocessing as mp
 import queue
 import time
 
-from ..helpers import get_all_runs_size
-
-
-class RunInfo:
-    def __init__(self, timestamp):
-        self._timestamp = timestamp
-        self.size_info = None
-
-    @property
-    def timestamp(self):
-        return self._timestamp
+from .proposal_monitor import ProposalMonitor
 
 
 class RunServer(mp.Process):
     def __init__(self, proposal, data_queue):
         super().__init__()
-        self.proposal = proposal
         self.data_queue = data_queue
+
+        self.proposal_monitor = ProposalMonitor(proposal)
 
     def run(self):
         while True:
-            names = get_all_runs_size(self.proposal)
-            if not names:
+            self.proposal_monitor.monitor()
+
+            if not self.proposal_monitor.info:
                 continue
 
             timestamp = datetime.now().strftime("%H:%M:%S")
-            data = RunInfo(timestamp)
-            data.size_info = names
+            self.proposal_monitor.timestamp = timestamp
 
             try:
-                self.data_queue.put_nowait(data)
+                self.data_queue.put_nowait(self.proposal_monitor)
                 time.sleep(10)
             except queue.Full:
                 continue
