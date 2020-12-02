@@ -9,7 +9,7 @@ from functools import lru_cache
 import os
 from pathlib import Path
 
-from extra_data.validation import FileValidator, RunValidator
+from extra_data.validation import FileValidator, RunValidator, ValidationError
 from extra_data import H5File
 
 
@@ -27,12 +27,11 @@ class ProposalMonitor:
             return
 
         names = {}
-        for run in sorted(all_runs):
+        for idx, run in enumerate(sorted(all_runs)):
             run = os.path.join(self.proposal, run)
             creation_date = datetime.fromtimestamp(Path(run).stat().st_mtime)
             # get the size of this directory (folder)
             info = self._get_run_info(run, creation_date)
-            print(run, info)
 
             if info == 0:
                 continue
@@ -58,6 +57,7 @@ class ProposalMonitor:
         total = 0
         try:
             for entry in os.scandir(path):
+                # Only evaluates size of files and not folders inside raw/proc
                 if entry.is_file():
                     # if it's a file, use stat() function
                     total += entry.stat().st_size
@@ -77,5 +77,4 @@ class ProposalMonitor:
             return 0
 
         validator.run_checks()
-
-        return total, not validator.problems
+        return total, str(ValidationError(validator.problems))

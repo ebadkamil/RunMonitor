@@ -69,16 +69,19 @@ class DashApp:
                     (swap.used/1024**3), ceil((swap.total/1024**3)))
 
         @self._app.callback(
-            Output('stream-info', 'children'),
+            [Output('stream-info', 'children'),
+             Output('proposal', 'disabled'),
+             Output('run-type', 'disabled')],
             [Input('start', 'on')],
             [State('proposal', 'value'),
              State('run-type', 'value')])
         def start_run_server(state, proposal, run_type):
-            info = ""
+            info, p_dis, r_dis = "", False, False
+
             if state:
                 if not (proposal and run_type):
-                    info = f"Either Folder or port number missing"
-                    return [info]
+                    info = f"Either Folder or run type missing"
+                    return [info], p_dis, r_dis
                 proposal = find_proposal(proposal, data=run_type)
                 self._run_server = RunServer(proposal, self._data_queue)
                 try:
@@ -87,6 +90,7 @@ class DashApp:
                     info = f"Checking Files of type {run_type} in {proposal}"
                 except Exception as ex:
                     info = repr(ex)
+                p_dis, r_dis = True, True
             elif not state:
                 if self._run_server is not None and self._run_server.is_alive():
                     info = "Shutdown Run Server"
@@ -94,7 +98,7 @@ class DashApp:
                 if self._run_server is not None:
                     self._run_server.join()
 
-            return [info]
+            return [info], p_dis, r_dis
 
         @self._app.callback(Output('histogram', 'figure'),
                             [Input('timestamp', 'value'),
@@ -107,7 +111,8 @@ class DashApp:
             runs = list(info.keys())
             sizes = [get_size_format(size, unit=format)
                      for size, _ in list(info.values())]
-            validated = ['green' if val else 'crimson' for _, val in list(info.values())]
+            validated = ['green' if not val else 'crimson'
+                         for _, val in list(info.values())]
             traces = [go.Bar(
                 x=runs, y=sizes,
                 marker=dict(color=validated),
@@ -122,6 +127,28 @@ class DashApp:
             }
 
             return figure
+
+        @self._app.callback(Output('problem-runs', 'options'),
+                            [Input('timestamp', 'value')])
+        def update_problem_runs_dd(timestamp):
+            if self._data is None or self._data.timestamp != timestamp or self._data.info is None:
+                raise dash.exceptions.PreventUpdate
+
+            information = self._data.info
+            options = []
+            for run, info in information.items():
+                if info[1]:
+                    options.append({'label': run, 'value': run})
+            return options
+
+        @self._app.callback(Output('problems-info', 'value'),
+                            [Input('problem-runs', 'value')])
+        def update_problem_runs_dd(run):
+            if self._data is None:
+                raise dash.exceptions.PreventUpdate
+            information = self._data.info
+            return information[run][1]
+
 
     def _update(self):
         try:
