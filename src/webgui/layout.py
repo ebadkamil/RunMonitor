@@ -78,6 +78,21 @@ def get_layout(UPDATE_INT, config=None):
                             on=False),
                         html.Br(),
                         html.Div(id="stream-info"),
+                        html.Hr(),
+                        html.Div(
+                            [
+                            dcc.Dropdown(
+                                id='problem-runs',
+                                placeholder="Problematic runs",
+                                options=[],
+                                className="leftbox"),
+                            dcc.Textarea(
+                                id="problems-info",
+                                placeholder='Validation Message',
+                                draggable='false',
+                                readOnly=True,
+                                disabled=True,
+                                style={'width': '100%', 'height': 200})])
                     ],
                     className="pretty_container one-third column"),
                     html.Div(
@@ -91,6 +106,7 @@ def get_layout(UPDATE_INT, config=None):
                         dcc.Graph(
                         id='histogram')],
                         className="two-thirds column")], className="row")]),
+        html.Br(),
     ])
 
     return app_layout
