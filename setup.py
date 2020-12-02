@@ -15,7 +15,7 @@ def find_version():
 setup(name="dashboard",
       version=find_version(),
       author="Ebad Kamil",
-      author_email="kamilebad@gmail.com",
+      author_email="ebad.kamil@xfel.eu",
       maintainer="Ebad Kamil",
       packages=find_packages(),
       entry_points={
