@@ -36,8 +36,8 @@ class ProposalMonitor:
             if info == 0:
                 continue
             names[os.path.basename(run)] = info
-
-        self._info = names
+            self._info = names
+            yield
 
     @property
     def info(self):
