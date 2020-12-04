@@ -4,6 +4,7 @@ Run Visualization software
 Author: Ebad Kamil <ebad.kamil@xfel.eu>
 All rights reserved.
 """
+from collections import deque
 from math import ceil
 from multiprocessing import Queue
 import queue
@@ -37,6 +38,7 @@ class DashApp:
         self._data_queue = Queue(maxsize=1)
         self._run_server = None
         self._data = None
+        self._run_queue = deque(maxlen=300)
         self.setLayout()
         self.register_callbacks()
 
@@ -77,7 +79,7 @@ class DashApp:
              State('run-type', 'value')])
         def start_run_server(state, proposal, run_type):
             info, p_dis, r_dis = "", False, False
-
+            self._run_queue.clear()
             if state:
                 if not (proposal and run_type):
                     info = f"Either Folder or run type missing"
@@ -153,5 +155,6 @@ class DashApp:
     def _update(self):
         try:
             self._data = self._data_queue.get_nowait()
+            self._run_queue.append(self._data)
         except queue.Empty:
             pass
