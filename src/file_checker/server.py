@@ -18,10 +18,15 @@ class RunServer(mp.Process):
         self.data_queue = data_queue
 
         self.proposal_monitor = ProposalMonitor(proposal)
+        self.monitor = self.proposal_monitor.monitor()
 
     def run(self):
         while True:
-            self.proposal_monitor.monitor()
+
+            try:
+                next(self.monitor)
+            except StopIteration:
+                continue
 
             if not self.proposal_monitor.info:
                 continue
@@ -31,7 +36,7 @@ class RunServer(mp.Process):
 
             try:
                 self.data_queue.put_nowait(self.proposal_monitor)
-                time.sleep(10)
+                time.sleep(1)
             except queue.Full:
                 continue
 
