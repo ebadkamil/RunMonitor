@@ -4,6 +4,7 @@ Run Visualization software
 Author: Ebad Kamil <ebad.kamil@xfel.eu>
 All rights reserved.
 """
+from collections import deque
 from math import ceil
 from multiprocessing import Queue
 import queue
@@ -18,7 +19,7 @@ import psutil as ps
 
 from .layout import get_layout
 from .config import config
-from ..file_checker import RunServer
+from ..file_checker import ProposalMonitor
 from ..helpers import find_proposal, get_size_format
 
 
@@ -37,6 +38,7 @@ class DashApp:
         self._data_queue = Queue(maxsize=1)
         self._run_server = None
         self._data = None
+
         self.setLayout()
         self.register_callbacks()
 
@@ -77,13 +79,12 @@ class DashApp:
              State('run-type', 'value')])
         def start_run_server(state, proposal, run_type):
             info, p_dis, r_dis = "", False, False
-
             if state:
                 if not (proposal and run_type):
                     info = f"Either Folder or run type missing"
                     return [info], p_dis, r_dis
                 proposal = find_proposal(proposal, data=run_type)
-                self._run_server = RunServer(proposal, self._data_queue)
+                self._run_server = ProposalMonitor(proposal, self._data_queue)
                 try:
                     print("Start ", self._run_server)
                     self._run_server.start()
@@ -147,8 +148,8 @@ class DashApp:
             if self._data is None:
                 raise dash.exceptions.PreventUpdate
             information = self._data.info
-            return information[run][1]
-
+            if run:
+                return information[run][1]
 
     def _update(self):
         try:

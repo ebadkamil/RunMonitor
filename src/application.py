@@ -18,4 +18,4 @@ from .webgui import DashApp
 def launch_dash_board():
 
     app = DashApp()
-    app._app.run_server(debug=False)
+    app._app.run_server(port=8050, debug=False)
