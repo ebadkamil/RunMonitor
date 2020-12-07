@@ -16,6 +16,11 @@ from .webgui import DashApp
 
 
 def launch_dash_board():
+    parser = argparse.ArgumentParser(prog="Run Monitor")
+    parser.add_argument("--validate", action='store_true',
+                        help="To enable run validation")
 
-    app = DashApp()
+    args = parser.parse_args()
+
+    app = DashApp(validate=args.validate)
     app._app.run_server(port=8050, debug=False)
