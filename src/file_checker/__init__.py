@@ -1,1 +1,1 @@
-from .server import RunServer
+from .proposal_monitor import ProposalMonitor
