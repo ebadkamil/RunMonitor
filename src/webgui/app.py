@@ -30,11 +30,13 @@ def get_virtual_memory():
 
 class DashApp:
 
-    def __init__(self):
+    def __init__(self, validate=False):
         app = dash.Dash(__name__)
         app.config['suppress_callback_exceptions'] = True
         self._app = app
         self._config = config
+        self._validate = validate
+
         self._data_queue = Queue(maxsize=1)
         self._run_server = None
         self._data = None
@@ -84,7 +86,8 @@ class DashApp:
                     info = f"Either Folder or run type missing"
                     return [info], p_dis, r_dis
                 proposal = find_proposal(proposal, data=run_type)
-                self._run_server = ProposalMonitor(proposal, self._data_queue)
+                self._run_server = ProposalMonitor(
+                    proposal, self._data_queue, validate=self._validate)
                 try:
                     print("Start ", self._run_server)
                     self._run_server.start()
@@ -153,6 +156,6 @@ class DashApp:
 
     def _update(self):
         try:
-            self._data = self._data_queue.get_nowait()
+            self._data = self._data_queue.get()
         except queue.Empty:
             pass

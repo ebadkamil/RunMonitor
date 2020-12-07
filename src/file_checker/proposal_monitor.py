@@ -30,10 +30,11 @@ class RunInfo:
 
 
 class ProposalMonitor(mp.Process):
-    def __init__(self, proposal, data_queue):
+    def __init__(self, proposal, data_queue, validate=False):
         super().__init__()
         self.proposal = proposal
         self.data_queue = data_queue
+        self.validate = validate
         self._info = None
 
         self.__queue = queue.Queue()
@@ -54,7 +55,7 @@ class ProposalMonitor(mp.Process):
             self.data.info = self._info
 
             try:
-                self.data_queue.put_nowait(self.data)
+                self.data_queue.put(self.data)
             except queue.Full:
                 continue
 
@@ -70,6 +71,7 @@ class ProposalMonitor(mp.Process):
             info = self._get_run_info(run, creation_date)
             if info == 0:
                 continue
+            print("GET ", run, info)
             names[os.path.basename(run)] = info
             self._info = names
             yield
@@ -116,6 +118,9 @@ class ProposalMonitor(mp.Process):
         except PermissionError:
             # if for whatever reason we can't open the folder, return 0
             return 0
+
+        if not self.validate:
+            return total, " "
 
         if os.path.isdir(path):
             validator = RunValidator(path)
