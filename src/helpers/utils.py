@@ -4,8 +4,10 @@ Run Visualization software
 Author: Ebad Kamil <ebad.kamil@xfel.eu>
 All rights reserved.
 """
+from functools import wraps
 from glob import iglob
 import os
+from threading import Thread
 
 
 def find_proposal(proposal, data='raw'):
@@ -70,8 +72,19 @@ def get_size_format(b, unit="B", factor=1024):
     return b
 
 
+def run_in_thread(original):
+    @wraps(original)
+    def wrapper(*args, **kwargs):
+        t = Thread(
+            target=original, args=args, kwargs=kwargs, daemon=True)
+        t.start()
+        return t
+    return wrapper
+
+
 if __name__ == "__main__":
     # proposal = find_proposal("/media/kamile/storage/dssc_data/")
     # print(proposal)
-    proposal = 900091
+    proposal = 2573
     proposal = find_proposal(proposal, data='raw')
+    print("Proposal :", proposal)
