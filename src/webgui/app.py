@@ -35,7 +35,7 @@ class DashApp:
         app.config['suppress_callback_exceptions'] = True
         self._app = app
         self._config = config
-        self._data_queue = Queue(maxsize=1)
+        self._data_queue = Queue(maxsize=300)
         self._run_server = None
         self._data = None
 
