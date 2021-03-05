@@ -2,4 +2,5 @@
 *.egg-*
 __pycache__
 !.gitignore
+!.pre-commit-config.yaml
 

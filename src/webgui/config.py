@@ -1,3 +1,1 @@
-config = dict(
-    proposal='2573',
-    TIME_OUT=2.0)
+config = dict(proposal="2573", TIME_OUT=2.0)
