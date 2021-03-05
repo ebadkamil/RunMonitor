@@ -8,10 +8,8 @@ repos:
     rev: 3.8.4
     hooks:
     - id: flake8
--   repo: https://github.com/pre-commit/mirrors-mypy.git
-    rev: v0.790
-    hooks:
-    - id: mypy
+      args:
+        - "--ignore=E501, E203, E402, W503, Q000, W293, E731"
 -   repo: https://github.com/pycqa/isort
     rev: 5.7.0
     hooks:

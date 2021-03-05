@@ -4,17 +4,16 @@ Run Visualization software
 Author: Ebad Kamil <ebad.kamil@xfel.eu>
 All rights reserved.
 """
-from datetime import datetime
-from functools import lru_cache
 import multiprocessing as mp
 import os
-from pathlib import Path
 import queue
-from threading import Thread
 import time
+from datetime import datetime
+from functools import lru_cache
+from pathlib import Path
 
-from extra_data.validation import FileValidator, RunValidator, ValidationError
 from extra_data import H5File
+from extra_data.validation import FileValidator, RunValidator, ValidationError
 
 from ..helpers import run_in_thread
 
@@ -79,8 +78,8 @@ class ProposalMonitor(mp.Process):
         old_runs = []
         diff = lambda a, b: [x for x in a if x not in b]
         m_time = lambda path: max(
-            [entry.stat().st_mtime
-             for entry in os.scandir(path) if entry.is_file()])
+            [entry.stat().st_mtime for entry in os.scandir(path) if entry.is_file()]
+        )
 
         while True:
             new_runs = []
@@ -89,8 +88,7 @@ class ProposalMonitor(mp.Process):
                 try:
                     timestamp = datetime.fromtimestamp(m_time(run))
                 except Exception:
-                    timestamp = datetime.fromtimestamp(
-                        Path(run).stat().st_mtime)
+                    timestamp = datetime.fromtimestamp(Path(run).stat().st_mtime)
                 new_runs.append((run, timestamp))
 
             chunk = diff(new_runs, old_runs)
@@ -119,14 +117,14 @@ class ProposalMonitor(mp.Process):
 
         if os.path.isdir(path):
             validator = RunValidator(path)
-        elif path.endswith('.h5'):
+        elif path.endswith(".h5"):
             validator = FileValidator(H5File(path).files[0])
         else:
             return 0
 
         try:
             validator.run_checks()
-        except Exception as ex:
+        except Exception:
             pass
         return total, str(ValidationError(validator.problems))
 
